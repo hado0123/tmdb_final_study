@@ -4,6 +4,7 @@ import { Wrap, Main } from '../styles/StyledComponent'
 import Menu from '../components/Menu'
 import Footer from '../components/Footer'
 import Banner from '../components/Banner'
+import PosterSlider from '../components/slider/PosterSlider'
 
 function Home() {
    return (
@@ -11,6 +12,10 @@ function Home() {
          <Menu />
          <Main>
             <Banner />
+            <div className="common_margin_tb">
+               <div></div>
+               <PosterSlider />
+            </div>
          </Main>
          <Footer />
       </Wrap>
