@@ -1,5 +1,5 @@
 // 메인화면
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import '../styles/common.css'
 import { Wrap, Main } from '../styles/StyledComponent'
@@ -15,9 +15,9 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 function Home() {
    const [alignment, setAlignment] = useState('movie')
 
-   const handleChange = (event, newAlignment) => {
+   const handleChange = useCallback((event, newAlignment) => {
       setAlignment(newAlignment)
-   }
+   }, [])
 
    return (
       <Wrap>
