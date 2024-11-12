@@ -9,13 +9,13 @@ createAsyncThunk의 async함수에서 매개변수로 값을 여러개 받으려
 //인기, 현재 상영중, 개봉예정 영화 목록을 API로 부터 가져옴
 export const fetchMovies = createAsyncThunk('movies/fetchMovies', async ({ category, page }) => {
    const response = await getMovies(category, page)
-   return response.date.results
+   return response.data.results
 })
 
 const moviesSlice = createSlice({
    name: 'movies',
    initialState: {
-      loading: fasle, //로딩여부
+      loading: false, //로딩여부
       movies: [], //영화정보
       movieDetails: null, //영화 상세 정보
       movieCredits: null, //출연 배우 정보
@@ -27,6 +27,7 @@ const moviesSlice = createSlice({
          //대기상태
          .addCase(fetchMovies.pending, (state) => {
             state.loading = true
+            state.error = null //새로운 요청 시 에러 초기화
          })
          //성공상태
          .addCase(fetchMovies.fulfilled, (state, action) => {
@@ -47,3 +48,5 @@ const moviesSlice = createSlice({
          })
    },
 })
+
+export default moviesSlice.reducer
