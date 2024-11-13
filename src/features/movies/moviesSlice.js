@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getMovies, getMovieDetails, getMovieCredits } from '../../api/tmdbApi'
+import { getMovies, getMovieDetails, getMovieCredits, searchMovie } from '../../api/tmdbApi'
 
 /*
 createAsyncThunk의 async함수에서 매개변수로 값을 여러개 받으려면 
@@ -24,6 +24,12 @@ export const fetchMovieCredits = createAsyncThunk('movies/fetchMovieCredits', as
    return response.data
 })
 
+//검색어로 영화 검색
+export const fetchSearchResults = createAsyncThunk('movies/fetchSearchResults', async ({ query, page }) => {
+   const response = await searchMovie(query, page)
+   return response.data.results
+})
+
 const moviesSlice = createSlice({
    name: 'movies',
    initialState: {
@@ -31,6 +37,7 @@ const moviesSlice = createSlice({
       movies: [], //영화정보
       movieDetails: null, //영화 상세 정보
       movieCredits: null, //출연 배우 정보
+      searchResults: [], //검색 결과
       error: null, //에러메세지
    },
    reducers: {},
@@ -81,6 +88,25 @@ const moviesSlice = createSlice({
             state.movieCredits = action.payload
          })
          .addCase(fetchMovieCredits.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.error.message
+         })
+
+         .addCase(fetchSearchResults.pending, (state) => {
+            state.loading = true
+            state.error = null //새로운 요청 시 에러 초기화
+         })
+         .addCase(fetchSearchResults.fulfilled, (state, action) => {
+            state.loading = false
+            // 페이지가 1일때 새로운 데이터로 state 업데이트
+            if (action.meta.arg.page === 1) {
+               state.searchResults = action.payload
+            } else {
+               //페이지가 2 이상일때 기존데이터 + 새로운 데이터로 state 업데이트
+               state.searchResults = [...state.searchResults, ...action.payload]
+            }
+         })
+         .addCase(fetchSearchResults.rejected, (state, action) => {
             state.loading = false
             state.error = action.error.message
          })
