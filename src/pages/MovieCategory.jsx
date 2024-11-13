@@ -21,8 +21,15 @@ function MovieCategory({ category }) {
       upcoming: 1,
    })
 
+   const isFirstLoad = useRef(true)
+
    // 카테고리가 변경될때 마다 해당 카테고리의 페이지를 1로 초기화
    useEffect(() => {
+      if (isFirstLoad.current) {
+         isFirstLoad.current = false
+         return
+      }
+
       setPage((prevPage) => ({
          ...prevPage,
          [category]: 1,
@@ -34,6 +41,7 @@ function MovieCategory({ category }) {
       // 인기영화 탭 클릭시 {category: 'popular', page: 1}
       console.log({ category, page: page[category] })
       dispatch(fetchMovies({ category, page: page[category] }))
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [dispatch, page])
 
    // 더보기를 누르면 해당 카테고리의 page state를 1씩 증가
@@ -44,6 +52,28 @@ function MovieCategory({ category }) {
          [category]: prevPage[category] + 1, //1페이지씩 증가
       }))
    }, [category])
+
+   if (loading && page === 1)
+      return (
+         <Wrap>
+            <Menu />
+            <Main>
+               <h2>Loading...</h2>
+            </Main>
+            <Footer />
+         </Wrap>
+      )
+
+   if (error)
+      return (
+         <Wrap>
+            <Menu />
+            <Main>
+               <h2>Error: {error}</h2>
+            </Main>
+            <Footer />
+         </Wrap>
+      )
 
    return (
       <Wrap>

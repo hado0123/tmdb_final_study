@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
-import { getMovies } from '../../api/tmdbApi'
+import { getMovies, getMovieDetails, getMovieCredits } from '../../api/tmdbApi'
 
 /*
 createAsyncThunk의 async함수에서 매개변수로 값을 여러개 받으려면 
@@ -10,6 +10,18 @@ createAsyncThunk의 async함수에서 매개변수로 값을 여러개 받으려
 export const fetchMovies = createAsyncThunk('movies/fetchMovies', async ({ category, page }) => {
    const response = await getMovies(category, page)
    return response.data.results
+})
+
+//영화 상세 정보 가져오기
+export const fetchMovieDetails = createAsyncThunk('movies/fetchMovieDetails', async (movieId) => {
+   const response = await getMovieDetails(movieId)
+   return response.data
+})
+
+//출연 배우 정보 가져오기
+export const fetchMovieCredits = createAsyncThunk('movies/fetchMovieCredits', async (movieId) => {
+   const response = await getMovieCredits(movieId)
+   return response.data
 })
 
 const moviesSlice = createSlice({
@@ -37,12 +49,38 @@ const moviesSlice = createSlice({
             if (action.meta.arg.page === 1) {
                state.movies = action.payload
             } else {
-               //페이지가 2 이상일때 기존데이터 + 세로운 데이터로 state 업데이트
+               //페이지가 2 이상일때 기존데이터 + 새로운 데이터로 state 업데이트
                state.movies = [...state.movies, ...action.payload]
             }
          })
          //실패상태(에러발생)
          .addCase(fetchMovies.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.error.message
+         })
+
+         .addCase(fetchMovieDetails.pending, (state) => {
+            state.loading = true
+            state.error = null //새로운 요청 시 에러 초기화
+         })
+         .addCase(fetchMovieDetails.fulfilled, (state, action) => {
+            state.loading = false
+            state.movieDetails = action.payload
+         })
+         .addCase(fetchMovieDetails.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.error.message
+         })
+
+         .addCase(fetchMovieCredits.pending, (state) => {
+            state.loading = true
+            state.error = null //새로운 요청 시 에러 초기화
+         })
+         .addCase(fetchMovieCredits.fulfilled, (state, action) => {
+            state.loading = false
+            state.movieCredits = action.payload
+         })
+         .addCase(fetchMovieCredits.rejected, (state, action) => {
             state.loading = false
             state.error = action.error.message
          })
